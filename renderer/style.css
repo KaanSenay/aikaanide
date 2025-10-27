@@ -1,0 +1,361 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #1e1e1e;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  #top-nav {
+    background: #333;
+    padding: 0;
+    display: flex;
+    border-bottom: 1px solid #444;
+    height: 35px;
+  }
+
+  #top-nav button {
+    background: transparent;
+    color: #cccccc;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+  }
+
+  #top-nav button:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .panel-title {
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #bbbbbb;
+    background: #252526;
+  }
+
+  .file-actions {
+    padding: 8px 12px;
+    border-bottom: 1px solid #383838;
+  }
+
+  .action {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #cccccc;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 3px;
+  }
+
+  .action:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .action-text {
+    font-size: 13px;
+  }
+
+  #editor-tabs {
+    height: 35px;
+    background: #252526;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    border-bottom: 1px solid #1e1e1e;
+  }
+
+  .editor-tab {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    height: 100%;
+    background: #2d2d2d;
+    border-right: 1px solid #1e1e1e;
+    font-size: 13px;
+    color: #cccccc;
+    cursor: pointer;
+    position: relative;
+    min-width: 120px;
+    max-width: 200px;
+  }
+
+  .editor-tab.active {
+    background: #1e1e1e;
+  }
+
+  .editor-tab-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 20px 0 5px;
+  }
+
+  .editor-tab-close {
+    position: absolute;
+    right: 5px;
+    opacity: 0.7;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+
+  .editor-tab:hover .editor-tab-close {
+    opacity: 1;
+  }
+
+  .editor-tab-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  #main-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  #file-panel {
+    width: 250px;
+    background: #252526;
+    border-right: 1px solid #333;
+    overflow-y: auto;
+    padding: 8px 0;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  #file-panel.hidden {
+    width: 0;
+    padding: 0;
+    border-right: none;
+    overflow: hidden;
+  }
+
+  #file-panel.hidden {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  
+#file-list {
+  user-select: none;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 2px 8px 2px 20px;
+  cursor: pointer;
+  line-height: 22px;
+  white-space: nowrap;
+  position: relative;
+  color: #cccccc;
+}
+
+.file-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.file-item.active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.folder-item {
+  position: relative;
+}
+
+.folder-item::before {
+  content: "▶";
+  position: absolute;
+  left: 6px;
+  font-size: 8px;
+  color: #cccccc;
+  transform: rotate(0);
+  transition: transform 0.15s ease;
+}
+
+.folder-item.expanded::before {
+  transform: rotate(90deg);
+}
+
+.file-icon {
+  display: inline-block;
+  width: 16px;
+  margin-right: 6px;
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+  
+  #editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #container {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+  }
+  
+  #chat-panel {
+    width: 320px;
+    background: #252526;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #333;
+  }
+
+  #chat-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #2d2d2d;
+    border-bottom: 1px solid #333;
+    height: 35px;
+  }
+
+  .chat-title {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: #cccccc;
+  }
+
+  .chat-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .icon-button {
+    background: transparent;
+    border: none;
+    color: #cccccc;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+
+  .icon-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  #chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  
+  #chat-input-area {
+    border-top: 1px solid #333;
+    display: flex;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  #chat-input {
+    flex: 1;
+    background: #1e1e1e;
+    border: 1px solid #3c3c3c;
+    border-radius: 3px;
+    color: white;
+    padding: 8px;
+    resize: none;
+    height: 60px;
+  }
+
+  #chat-send {
+    align-self: flex-end;
+    background: #0e639c;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  #chat-send:hover {
+    background: #1177bb;
+  }
+  
+  
+  #chat-input {
+    resize: none;
+    height: 60px;
+    background: #1e1e1e;
+    color: white;
+    border: none;
+    padding: 8px;
+    font-size: 14px;
+    outline: none;
+  }
+  
+  #chat-send {
+    flex: 1;
+    background: #007acc;
+    border: none;
+    padding: 10px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  #chat-send:hover {
+    background: #005a9e;
+  }
+
+  #chat-clear-cache {
+    background: #cc5500;
+    border: none;
+    padding: 10px 15px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  #chat-clear-cache:hover {
+    background: #994400;
+  }
+  
+  .msg {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+  }
+  
+  .msg.user {
+    background: #005f9e;
+  }
+  
+  .msg.ai {
+    background: #333;
+    border: 1px solid #555;
+  }
+  
