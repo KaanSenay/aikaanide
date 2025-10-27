@@ -1,8 +1,6 @@
 import { ChatPanel } from "./chat.js";
 import { FileManager } from "./fileManager.js";
 import { ContextManager } from "./contextManager.js";
-import { AIAutocomplete } from "./aiAutocomplete.js";
-import { DiffViewer } from "./diffViewer.js";
 
 require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs" } });
 
@@ -41,14 +39,7 @@ async function initializeApp() {
     chat = new ChatPanel(contextManager);
     window.chat = chat; // Global erişim için
 
-    console.log("[index.js] Creating DiffViewer...");
-    if (editor) {
-      diffViewer = new DiffViewer(editor);
-      chat.setDiffViewer(diffViewer);
-      console.log("[index.js] DiffViewer initialized and connected to chat");
-    } else {
-      console.warn("[index.js] Editor not ready, DiffViewer will be initialized later");
-    }
+    // DiffViewer will be initialized after Monaco is ready
 
     // UI event listeners are now handled via onclick in HTML
 
@@ -119,8 +110,6 @@ function initMonaco() {
           const DiffViewer = module.DiffViewer;
           diffViewer = new DiffViewer(editor);
           window.diffViewer = diffViewer;
-          
-          // Chat'e DiffViewer'ı bağla
           if (chat) {
             chat.setDiffViewer(diffViewer);
             console.log("[index.js] DiffViewer connected to chat");
@@ -201,23 +190,30 @@ window.handleCloseChat = function() {
 
 window.handleToggleFiles = function() {
   console.log("[Global] handleToggleFiles called");
+  const btn = document.getElementById('toggle-files');
   const filePanel = document.getElementById("file-panel");
-  if (filePanel) {
-    filePanel.classList.toggle("hidden");
+  if (fileManager && typeof fileManager.handlePanelToggle === 'function') {
+    fileManager.handlePanelToggle();
+  } else if (filePanel) {
+    // Fallback toggle using 'collapsed' class
+    filePanel.classList.toggle('collapsed');
+  }
+  // Update button state for better UX
+  if (btn && filePanel) {
+    const isCollapsed = filePanel.classList.contains('collapsed');
+    btn.setAttribute('aria-pressed', (!isCollapsed).toString());
+    btn.title = isCollapsed ? 'Show Explorer' : 'Hide Explorer';
   }
 };
 
 window.handleOpenProject = async function() {
   console.log("[Global] handleOpenProject called");
   try {
-    const result = await window.api.openFolder();
-    if (result && result.filePaths && result.filePaths.length > 0) {
-      const folderPath = result.filePaths[0];
-      console.log("[Global] Folder selected:", folderPath);
-      if (fileManager) {
-        fileManager.baseDir = folderPath;
-        await fileManager.loadFiles();
-      }
+    const dir = await window.api.selectDirectory();
+    if (dir && fileManager) {
+      console.log("[Global] Folder selected:", dir);
+      fileManager.baseDir = dir;
+      await fileManager.init();
     }
   } catch (error) {
     console.error("[Global] Error opening folder:", error);

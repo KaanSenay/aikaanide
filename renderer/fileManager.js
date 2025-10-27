@@ -25,9 +25,8 @@ export class FileManager {
     this.openTabs = new Map(); // path -> {title, element}
     this.activeTab = null;
 
-    // Event listener'ları bağla
-    openProjectBtn.addEventListener('click', this.handleProjectOpen.bind(this));
-    toggleFilesBtn.addEventListener('click', this.handlePanelToggle.bind(this));
+  // Event listeners are handled globally via HTML onclick to avoid double-binding
+  // (see window.handleOpenProject and window.handleToggleFiles in index.js)
     this.setupKeyboardShortcuts();
     
     console.log("[FileManager] Constructor completed, initializing...");
@@ -66,7 +65,12 @@ export class FileManager {
       console.error('[FileManager] file-panel element not found');
       return;
     }
-    panel.classList.toggle('hidden');
+    // Prefer "collapsed" to avoid clashing with global .hidden rule
+    if (panel.classList.contains('collapsed')) {
+      panel.classList.remove('collapsed');
+    } else {
+      panel.classList.add('collapsed');
+    }
   }
 
   createTab(filePath) {

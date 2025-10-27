@@ -272,7 +272,7 @@ ${
         errorMsg =
           "⏱️ Request timed out. Try:\n" +
           "1. Run: ollama serve\n" +
-          "2. Run: ollama pull deepseek-r1:latest\n" +
+          "2. Ensure your model is installed (e.g., ollama pull <model>)\n" +
           "3. Check if Ollama is running on port 11434";
       } else if (
         errorMsg.includes("ECONNREFUSED") ||
@@ -283,15 +283,13 @@ ${
           "Make sure Ollama is running:\n" +
           "1. Open terminal\n" +
           "2. Run: ollama serve\n" +
-          "3. If deepseek-r1 model is missing, run: ollama pull deepseek-r1:latest";
+          "3. Install the configured model if missing (AI_MODEL env var)";
       } else if (errorMsg.includes("404")) {
         errorMsg =
           "❌ Model not found!\n\n" +
-          "Available models:\n" +
-          "Run: ollama list\n\n" +
-          "To install deepseek-r1:\n" +
-          "Run: ollama pull deepseek-r1:latest\n\n" +
-          "Or use a different model by updating main.js";
+          "Check installed models with: ollama list\n\n" +
+          "Install a model, e.g.: ollama pull llama3\n\n" +
+          "Or set a different model via the AI_MODEL environment variable.";
       }
 
       this.addMessage("ai", errorMsg);

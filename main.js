@@ -1,10 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
-const https = require("https");
 const http = require("http");
-const fetch = (...args) =>
-  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -20,6 +17,17 @@ function createWindow() {
 }
 
 app.whenReady().then(createWindow);
+// Docs klasörü yolunu sağlayan handler
+ipcMain.handle("get-docs-dir", async () => {
+  try {
+    const docsPath = path.join(process.cwd(), "docs");
+    await fs.promises.mkdir(docsPath, { recursive: true });
+    return docsPath.replace(/\\/g, "/");
+  } catch (error) {
+    console.error("[main] Error ensuring docs dir:", error);
+    throw error;
+  }
+});
 
 // Klasör seçme isteği
 ipcMain.handle("select-directory", async () => {
@@ -158,8 +166,16 @@ ipcMain.handle("ask-ai", async (event, prompt) => {
 
   // First, check if Ollama is running
   try {
-    const healthCheck = await fetch("http://localhost:11434/");
-    console.log("[ask-ai] Ollama health check:", healthCheck.status);
+    await new Promise((resolve, reject) => {
+      const req = http.get("http://localhost:11434/", (res) => {
+        console.log("[ask-ai] Ollama health check:", res.statusCode);
+        // Drain and end
+        res.resume();
+        resolve();
+      });
+      req.on("error", reject);
+      req.end();
+    });
   } catch (err) {
     console.error("[ask-ai] Ollama not responding:", err.message);
     throw new Error(
@@ -168,7 +184,8 @@ ipcMain.handle("ask-ai", async (event, prompt) => {
   }
 
   return new Promise((resolve, reject) => {
-    const postData = JSON.stringify({ model: "llama3", prompt });
+  const MODEL_NAME = process.env.AI_MODEL || "llama3"; // Centralized model config
+  const postData = JSON.stringify({ model: MODEL_NAME, prompt });
 
     console.log(
       "[ask-ai] Sending request to Ollama, prompt length:",

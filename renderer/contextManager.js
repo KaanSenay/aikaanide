@@ -64,19 +64,12 @@ export class ContextManager {
   }
 
   async summarizeFile(filePath, content) {
-    // 🔹 AI'dan kısa bir özet istiyoruz (Ollama ile)
-    const prompt = `
-You are an assistant that summarizes source code.
-
-Summarize the following file in one or two sentences:
-- Explain its purpose
-- Mention key functions or classes if relevant
-
-Code:
-${content.slice(0, 1200)}
-    `;
-    const summary = await window.api.askAI(prompt);
-    return summary.trim();
+    // Hızlı, statik özet (AI çağrısı yok)
+    const firstLine = (content.split('\n')[0] || '').trim();
+    const fnCount = (content.match(/\bfunction\b|=>/g) || []).length;
+    const classCount = (content.match(/\bclass\s+[A-Za-z0-9_]+/g) || []).length;
+    const exportCount = (content.match(/\bexport\b/g) || []).length;
+    return `${filePath.split(/[\\/]/).pop()}: ${fnCount} func, ${classCount} class, ${exportCount} export | ${firstLine.slice(0, 80)}`;
   }
 
   async buildContext(currentFile) {

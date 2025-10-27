@@ -24,22 +24,12 @@ export class ProjectAnalyzer {
     try {
       // Mevcut dosyanın dizinini al
       const dirPath = currentFilePath.substring(0, currentFilePath.lastIndexOf('/'));
-      
-      // Dizindeki tüm dosyaları listele
-      const files = await window.api.listFiles(dirPath);
-      
-      // Sadece kod dosyalarını filtrele
-      const codeFiles = files.filter(f => 
-        !f.isDir && 
-        (f.path.endsWith('.js') || 
-         f.path.endsWith('.jsx') || 
-         f.path.endsWith('.ts') || 
-         f.path.endsWith('.tsx'))
-      );
 
+      // Dizini RECURSIVE tara ve sadece kod dosyalarını al
+      const codeFiles = await this.listCodeFilesRecursively(dirPath);
       console.log(`[ProjectAnalyzer] Found ${codeFiles.length} code files`);
 
-      // TÜM dosyaları analiz et (limit kaldırıldı)
+      // Dosyaları analiz et
       let analyzedCount = 0;
       for (const file of codeFiles) {
         try {
@@ -60,6 +50,33 @@ export class ProjectAnalyzer {
       console.error("[ProjectAnalyzer] Error scanning project:", error);
       return "";
     }
+  }
+
+  async listCodeFilesRecursively(rootDir) {
+    const stack = [rootDir];
+    const results = [];
+    const isCode = (p) => p.endsWith('.js') || p.endsWith('.jsx') || p.endsWith('.ts') || p.endsWith('.tsx');
+
+    while (stack.length) {
+      const dir = stack.pop();
+      let entries = [];
+      try {
+        entries = await window.api.listFiles(dir);
+      } catch (err) {
+        console.warn(`[ProjectAnalyzer] Cannot list ${dir}:`, err);
+        continue;
+      }
+      for (const e of entries) {
+        if (!e || !e.name) continue;
+        if (e.name === 'node_modules' || e.name === '.git' || e.name.startsWith('.')) continue;
+        if (e.isDir) {
+          stack.push(e.path);
+        } else if (isCode(e.path)) {
+          results.push(e);
+        }
+      }
+    }
+    return results;
   }
 
   analyzeFile(filePath, content) {

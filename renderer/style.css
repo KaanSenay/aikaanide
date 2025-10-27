@@ -77,11 +77,13 @@ body {
   flex-direction: column;
 }
 
-#file-panel.hidden {
-  width: 0;
-  min-width: 0;
-  border-right: none;
-  overflow: hidden;
+/* Dedicated collapse state for file drawer */
+#file-panel.collapsed {
+  display: flex !important; /* Ensure it stays in flex flow */
+  width: 0 !important;
+  min-width: 0 !important;
+  border-right: none !important;
+  overflow: hidden !important;
 }
 
 .panel-title {

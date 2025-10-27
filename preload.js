@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld("api", {
   readFile: (path) => ipcRenderer.invoke("read-file", path),
   getFileStats: (path) => ipcRenderer.invoke("get-file-stats", path),
   getCwd: () => ipcRenderer.invoke("get-cwd"),
+  getDocsDir: () => ipcRenderer.invoke("get-docs-dir"),
   selectDirectory: () => ipcRenderer.invoke("select-directory"),
   saveFile: (path, content) => ipcRenderer.invoke("save-file", path, content),
   createFile: (path, content) => ipcRenderer.invoke("create-file", path, content),
