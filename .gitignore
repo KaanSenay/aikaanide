@@ -48,3 +48,25 @@ Thumbs.db
 
 # Debug logs
 debug.log
+
+# Large files and directories
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+*.mp4
+*.mov
+*.avi
+*.iso
+*.dmg
+*.exe
+*.dll
+*.pdb
+
+# Cache directories
+.cache/
+.npm/
+.next/
+.nuxt/
+.temp/
