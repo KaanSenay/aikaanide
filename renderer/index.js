@@ -1,6 +1,8 @@
 import { ChatPanel } from "./chat.js";
 import { FileManager } from "./fileManager.js";
 import { ContextManager } from "./contextManager.js";
+import { AIAutocomplete } from "./aiAutocomplete.js";
+import { DiffViewer } from "./diffViewer.js";
 
 require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs" } });
 
@@ -8,6 +10,8 @@ let editor = null;
 let contextManager = null;
 let chat = null;
 let fileManager = null;
+let aiAutocomplete = null;
+let diffViewer = null;
 
 async function initializeApp() {
   try {
@@ -35,6 +39,18 @@ async function initializeApp() {
 
     console.log("[index.js] Creating ChatPanel...");
     chat = new ChatPanel(contextManager);
+    window.chat = chat; // Global erişim için
+
+    console.log("[index.js] Creating DiffViewer...");
+    if (editor) {
+      diffViewer = new DiffViewer(editor);
+      chat.setDiffViewer(diffViewer);
+      console.log("[index.js] DiffViewer initialized and connected to chat");
+    } else {
+      console.warn("[index.js] Editor not ready, DiffViewer will be initialized later");
+    }
+
+    // UI event listeners are now handled via onclick in HTML
 
     console.log("[index.js] Creating FileManager with baseDir:", baseDir);
     fileManager = new FileManager(baseDir, (filePath, content) => {
@@ -50,10 +66,22 @@ async function initializeApp() {
         editor.setValue(content);
         monaco.editor.setModelLanguage(editor.getModel(), lang);
         chat.setActiveFile(filePath, content);
+        
+        // AI Autocomplete'e dosya yolunu bildir
+        if (window.aiAutocomplete) {
+          window.aiAutocomplete.setCurrentFile(filePath);
+        }
       } catch (error) {
         console.error("[index.js] Error updating editor:", error);
       }
     });
+
+    // Setup editor change listener
+    fileManager.setupEditorChangeListener();
+    
+    // Global erişim için
+    window.fileManager = fileManager;
+    window.contextManager = contextManager;
   } catch (error) {
     console.error("[index.js] Initialization error:", error);
     const container = document.getElementById("container");
@@ -77,12 +105,38 @@ function initMonaco() {
 
         console.log("[index.js] Creating Monaco editor...");
         editor = monaco.editor.create(container, {
-          value: "// Select a file to open",
+          value: "// Select a file to open\n// Press Ctrl+K for AI autocomplete",
           language: "javascript",
           theme: "vs-dark",
           automaticLayout: true,
         });
         window.monacoEditor = editor;
+        window.editor = editor; // Global erişim için
+        
+        // Initialize DiffViewer
+        console.log("[index.js] Initializing DiffViewer with editor...");
+        import('./diffViewer.js').then(module => {
+          const DiffViewer = module.DiffViewer;
+          diffViewer = new DiffViewer(editor);
+          window.diffViewer = diffViewer;
+          
+          // Chat'e DiffViewer'ı bağla
+          if (chat) {
+            chat.setDiffViewer(diffViewer);
+            console.log("[index.js] DiffViewer connected to chat");
+          }
+        });
+        
+        // Initialize AI Autocomplete after a short delay to ensure everything is ready
+        setTimeout(() => {
+          import('./aiAutocomplete.js').then(module => {
+            const AIAutocomplete = module.AIAutocomplete;
+            aiAutocomplete = new AIAutocomplete(editor, null);
+            window.aiAutocomplete = aiAutocomplete; // Global erişim için
+            console.log("[index.js] AI Autocomplete initialized");
+          });
+        }, 100);
+        
         resolve();
       });
     } catch (error) {
@@ -108,9 +162,71 @@ async function init() {
   }
 }
 
+// Global fonksiyonlar - Butonlar için (HTML onclick'lerden çağrılıyor)
+window.handleChatSend = function() {
+  console.log("[Global] handleChatSend called");
+  if (chat) {
+    chat.handleSend();
+  } else {
+    console.error("[Global] Chat not initialized");
+  }
+};
+
+window.handleClearCache = function() {
+  console.log("[Global] handleClearCache called");
+  if (chat) {
+    chat.clearCache();
+  } else {
+    console.error("[Global] Chat not initialized");
+  }
+};
+
+window.handleAnalyzeFile = function() {
+  console.log("[Global] handleAnalyzeFile called");
+  if (chat) {
+    chat.analyzeCurrentFile();
+  } else {
+    console.error("[Global] Chat not initialized");
+  }
+};
+
+window.handleCloseChat = function() {
+  console.log("[Global] handleCloseChat called");
+  if (chat) {
+    chat.closeChat();
+  } else {
+    console.error("[Global] Chat not initialized");
+  }
+};
+
+window.handleToggleFiles = function() {
+  console.log("[Global] handleToggleFiles called");
+  const filePanel = document.getElementById("file-panel");
+  if (filePanel) {
+    filePanel.classList.toggle("hidden");
+  }
+};
+
+window.handleOpenProject = async function() {
+  console.log("[Global] handleOpenProject called");
+  try {
+    const result = await window.api.openFolder();
+    if (result && result.filePaths && result.filePaths.length > 0) {
+      const folderPath = result.filePaths[0];
+      console.log("[Global] Folder selected:", folderPath);
+      if (fileManager) {
+        fileManager.baseDir = folderPath;
+        await fileManager.loadFiles();
+      }
+    }
+  } catch (error) {
+    console.error("[Global] Error opening folder:", error);
+  }
+};
+
 // Sayfa yüklendiğinde başlat
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
   init();
-};
+}

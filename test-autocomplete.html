@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ghost Text Test</title>
+  <style>
+    body {
+      background: #1e1e1e;
+      color: white;
+      font-family: monospace;
+      padding: 20px;
+    }
+    
+    .test-area {
+      background: #252526;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+    
+    .ghost-demo {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .ghost-demo::after {
+      content: 'ulate(a, b) {';
+      color: #666666;
+      font-style: italic;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ghost Text CSS Test</h1>
+  
+  <div class="test-area">
+    <h2>CSS Test:</h2>
+    <p>Yazı: <span class="ghost-demo">function calc</span></p>
+    <p>Eğer "ulate(a, b) {" gri ve italik görünüyorsa CSS çalışıyor!</p>
+  </div>
+  
+  <div class="test-area">
+    <h2>Monaco Editor'de Test:</h2>
+    <ol>
+      <li>IDE'yi başlat: <code>npm start</code></li>
+      <li>Bir .js dosyası aç</li>
+      <li>Şunu yaz: <code>function calc</code></li>
+      <li>1 saniye bekle</li>
+      <li>Console'u aç (F12) ve şu mesajları ara:
+        <ul>
+          <li>[AIAutocomplete] Requesting completion...</li>
+          <li>[AIAutocomplete] Raw completion received: ...</li>
+          <li>[AIAutocomplete] Cleaned completion: ...</li>
+          <li>[AIAutocomplete] Showing ghost text: ...</li>
+          <li>[AIAutocomplete] Decoration IDs: ...</li>
+        </ul>
+      </li>
+      <li>Eğer "Decoration IDs" boş array [] ise, decoration oluşturulmamış demektir</li>
+    </ol>
+  </div>
+  
+  <div class="test-area">
+    <h2>Sorun Giderme:</h2>
+    <ul>
+      <li><strong>Ghost text görünmüyor:</strong> Console'da decoration ID'leri kontrol et</li>
+      <li><strong>AI tırnak içinde cevap veriyor:</strong> Prompt güncellemesi yapıldı, test et</li>
+      <li><strong>Hiç öneri gelmiyor:</strong> Ollama çalışıyor mu kontrol et</li>
+    </ul>
+  </div>
+</body>
+</html>

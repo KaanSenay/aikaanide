@@ -7,14 +7,14 @@
 </head>
 <body>
   <div id="top-nav">
-    <button id="toggle-files">☰</button>
+    <button id="toggle-files" onclick="window.handleToggleFiles()">☰</button>
   </div>
   
   <div id="main-layout">
     <div id="file-panel" class="visible">
       <div class="panel-title">EXPLORER</div>
       <div class="file-actions">
-        <div class="action" id="open-project" title="Open Folder">
+        <div class="action" id="open-project" title="Open Folder" onclick="window.handleOpenProject()">
           <span class="action-icon">📁</span>
           <span class="action-text">Open Folder</span>
         </div>
@@ -31,14 +31,15 @@
       <div id="chat-header">
         <span class="chat-title">AI Assistant</span>
         <div class="chat-actions">
-          <button id="chat-clear-cache" title="Clear AI memory cache" class="icon-button">🗑️</button>
-          <button id="chat-close" title="Close chat" class="icon-button">✕</button>
+          <button id="chat-analyze-file" title="Analyze current file" class="icon-button" onclick="window.handleAnalyzeFile()">🔍</button>
+          <button id="chat-clear-cache" title="Clear AI memory cache" class="icon-button" onclick="window.handleClearCache()">🗑️</button>
+          <button id="chat-close" title="Close chat" class="icon-button" onclick="window.handleCloseChat()">✕</button>
         </div>
       </div>
       <div id="chat-messages"></div>
       <div id="chat-input-area">
-        <textarea id="chat-input" placeholder="Ask AI something..."></textarea>
-        <button id="chat-send">Send</button>
+        <textarea id="chat-input" placeholder="Ask AI something... (Ctrl+K for autocomplete)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();window.handleChatSend();}"></textarea>
+        <button id="chat-send" onclick="window.handleChatSend()">Send</button>
       </div>
     </div>
   </div>
@@ -48,8 +49,12 @@
   
   <!-- Uygulama modülleri -->
   <script type="module" src="contextManager.js"></script>
+  <script type="module" src="commentFormatter.js"></script>
   <script type="module" src="chat.js"></script>
   <script type="module" src="fileManager.js"></script>
+  <script type="module" src="projectAnalyzer.js"></script>
+  <script type="module" src="aiAutocomplete.js"></script>
+  <script type="module" src="diffViewer.js"></script>
   
   <!-- Ana uygulama başlatıcı -->
   <script type="module" src="index.js"></script>

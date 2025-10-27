@@ -6,5 +6,10 @@ contextBridge.exposeInMainWorld("api", {
   readFile: (path) => ipcRenderer.invoke("read-file", path),
   getFileStats: (path) => ipcRenderer.invoke("get-file-stats", path),
   getCwd: () => ipcRenderer.invoke("get-cwd"),
-  selectDirectory: () => ipcRenderer.invoke("select-directory")
+  selectDirectory: () => ipcRenderer.invoke("select-directory"),
+  saveFile: (path, content) => ipcRenderer.invoke("save-file", path, content),
+  createFile: (path, content) => ipcRenderer.invoke("create-file", path, content),
+  deleteFile: (path) => ipcRenderer.invoke("delete-file", path),
+  createDirectory: (path) => ipcRenderer.invoke("create-directory", path),
+  executeCommand: (command) => ipcRenderer.invoke("execute-command", command)
 });

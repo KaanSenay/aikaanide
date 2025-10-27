@@ -28,6 +28,7 @@ export class FileManager {
     // Event listener'ları bağla
     openProjectBtn.addEventListener('click', this.handleProjectOpen.bind(this));
     toggleFilesBtn.addEventListener('click', this.handlePanelToggle.bind(this));
+    this.setupKeyboardShortcuts();
     
     console.log("[FileManager] Constructor completed, initializing...");
     // Initialize
@@ -73,6 +74,7 @@ export class FileManager {
     const tab = document.createElement('div');
     tab.className = 'editor-tab';
     tab.innerHTML = `
+      <span class="editor-tab-unsaved"></span>
       <span class="editor-tab-title">${fileName}</span>
       <span class="editor-tab-close">✕</span>
     `;
@@ -89,6 +91,16 @@ export class FileManager {
     return tab;
   }
 
+  markTabAsModified(filePath, isModified) {
+    const tab = this.openTabs.get(filePath);
+    if (tab) {
+      const indicator = tab.element.querySelector('.editor-tab-unsaved');
+      if (indicator) {
+        indicator.classList.toggle('visible', isModified);
+      }
+    }
+  }
+
   openTab(filePath) {
     if (!this.openTabs.has(filePath)) {
       const tab = this.createTab(filePath);
@@ -100,7 +112,9 @@ export class FileManager {
       this.openTabs.set(filePath, {
         title: filePath.split(/[\\/]/).pop(),
         element: tab,
-        content: null
+        content: null,
+        originalContent: null,
+        isModified: false
       });
     }
     this.activateTab(filePath);
@@ -150,6 +164,9 @@ export class FileManager {
       const tab = this.openTabs.get(filePath);
       if (tab) {
         tab.content = content;
+        tab.originalContent = content;
+        tab.isModified = false;
+        this.markTabAsModified(filePath, false);
         if (this.activeTab === filePath && window.monacoEditor) {
           try {
             window.monacoEditor.setValue(content);
@@ -162,6 +179,57 @@ export class FileManager {
       console.error("[FileManager] Failed to load file content:", error);
       this.showError(`Error loading file: ${error.message}`);
     }
+  }
+
+  setupEditorChangeListener() {
+    if (!window.monacoEditor) return;
+    
+    window.monacoEditor.onDidChangeModelContent(() => {
+      if (this.activeTab) {
+        const tab = this.openTabs.get(this.activeTab);
+        if (tab && tab.originalContent !== null) {
+          const currentContent = window.monacoEditor.getValue();
+          const isModified = currentContent !== tab.originalContent;
+          tab.isModified = isModified;
+          this.markTabAsModified(this.activeTab, isModified);
+        }
+      }
+    });
+  }
+
+  async saveCurrentFile() {
+    if (!this.activeTab) {
+      console.log("[FileManager] No active file to save");
+      return;
+    }
+
+    const tab = this.openTabs.get(this.activeTab);
+    if (!tab || !tab.isModified) {
+      console.log("[FileManager] File not modified");
+      return;
+    }
+
+    try {
+      const content = window.monacoEditor.getValue();
+      await window.api.saveFile(this.activeTab, content);
+      tab.originalContent = content;
+      tab.isModified = false;
+      this.markTabAsModified(this.activeTab, false);
+      console.log("[FileManager] File saved:", this.activeTab);
+    } catch (error) {
+      console.error("[FileManager] Failed to save file:", error);
+      alert(`Error saving file: ${error.message}`);
+    }
+  }
+
+  setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+S veya Cmd+S ile kaydet
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        this.saveCurrentFile();
+      }
+    });
   }
 
   closeTab(filePath) {
