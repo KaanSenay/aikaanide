@@ -70,3 +70,14 @@ debug.log
 .next/
 .nuxt/
 .temp/
+
+# Dependencies
+node_modules/
+node_modules/**/*
+**/node_modules/
+package-lock.json
+
+# Electron specific
+**/electron/dist/**
+**/electron.exe
+**/electron
